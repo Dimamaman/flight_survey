@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:flight_survey/download_button/data/controller.dart';
-import 'package:flight_survey/download_button/data/download_state.dart';
+import 'package:flight_survey/download_button/bloc/data/controller.dart';
+import 'package:flight_survey/download_button/bloc/data/download_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

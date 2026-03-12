@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MaterialApp(
-    theme: ThemeData(primarySwatch: Colors.blue, brightness: Brightness.dark),
-    home: FlightsStepper(),
-  ));
+  runApp(
+    MaterialApp(
+      theme: ThemeData(primarySwatch: Colors.blue, brightness: Brightness.dark),
+      home: FlightsStepper(),
+    ),
+  );
 }
 
 class FlightsStepper extends StatefulWidget {
@@ -33,7 +35,7 @@ class _FlightsStepperState extends State<FlightsStepper> {
             answers: <String>[
               'Less than two hours',
               'More than two but less than five hours',
-              'Others'
+              'Others',
             ],
             number: 2,
           );
@@ -49,7 +51,7 @@ class _FlightsStepperState extends State<FlightsStepper> {
               Plane(),
               Line(),
               Positioned.fill(
-                left: 32.0 + 8,
+                left: 32.0 + 9,
                 child: AnimatedSwitcher(
                   child: page,
                   duration: Duration(milliseconds: 250),
@@ -71,7 +73,7 @@ class Line extends StatelessWidget {
       top: 40,
       bottom: 0,
       width: 1,
-      child: Container(color: Colors.white.withOpacity(0.5)),
+      child: Container(color: Colors.white.withValues(alpha: 0.5)),
     );
   }
 }
@@ -82,22 +84,22 @@ class Page extends StatefulWidget {
   final List<String> answers;
   final VoidCallback onOptionSelected;
 
-  const Page(
-      {Key key,
-      @required this.onOptionSelected,
-      @required this.number,
-      @required this.question,
-      @required this.answers})
-      : super(key: key);
+  const Page({
+    required Key key,
+    required this.onOptionSelected,
+    required this.number,
+    required this.question,
+    required this.answers,
+  }) : super(key: key);
 
   @override
   _PageState createState() => _PageState();
 }
 
 class _PageState extends State<Page> with SingleTickerProviderStateMixin {
-  List<GlobalKey<_ItemFaderState>> keys;
-  int selectedOptionKeyIndex;
-  AnimationController _animationController;
+  late List<GlobalKey<_ItemFaderState>> keys;
+  int selectedOptionKeyIndex = -1;
+  late AnimationController _dotAnimationController;
 
   @override
   void initState() {
@@ -106,7 +108,7 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
       2 + widget.answers.length,
       (_) => GlobalKey<_ItemFaderState>(),
     );
-    _animationController = AnimationController(
+    _dotAnimationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
@@ -118,13 +120,15 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
       builder: (context) {
         double minTop = MediaQuery.of(context).padding.top + 52;
         return AnimatedBuilder(
-          animation: _animationController,
+          animation: _dotAnimationController,
           builder: (context, child) {
             return Positioned(
               left: 26.0 + 32 + 8,
-              top: minTop +
-                  (startOffset.dy - minTop) * (1 - _animationController.value),
-              child: child,
+              top:
+                  minTop +
+                  (startOffset.dy - minTop) *
+                      (1 - _dotAnimationController.value),
+              child: child ?? SizedBox.shrink(),
             );
           },
           child: Dot(),
@@ -132,7 +136,7 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
       },
     );
     Overlay.of(context).insert(entry);
-    await _animationController.forward(from: 0);
+    await _dotAnimationController.forward(from: 0);
     entry.remove();
   }
 
@@ -142,7 +146,10 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         SizedBox(height: 32),
-        ItemFader(key: keys[0], child: StepNumber(number: widget.number)),
+        ItemFader(
+          key: keys[0],
+          child: StepNumber(number: widget.number),
+        ),
         ItemFader(
           key: keys[1],
           child: StepQuestion(question: widget.question),
@@ -168,7 +175,7 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
   void onTap(int keyIndex, Offset offset) async {
     for (GlobalKey<_ItemFaderState> key in keys) {
       await Future.delayed(Duration(milliseconds: 40));
-      key.currentState.hide();
+      key.currentState?.hide();
       if (keys.indexOf(key) == keyIndex) {
         setState(() => selectedOptionKeyIndex = keyIndex);
         animateDot(offset).then((_) => widget.onOptionSelected());
@@ -179,7 +186,7 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
   void onInit() async {
     for (GlobalKey<_ItemFaderState> key in keys) {
       await Future.delayed(Duration(milliseconds: 40));
-      key.currentState.show();
+      key.currentState?.show();
     }
   }
 }
@@ -187,7 +194,7 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
 class StepNumber extends StatelessWidget {
   final int number;
 
-  const StepNumber({Key key, @required this.number}) : super(key: key);
+  const StepNumber({Key? key, required this.number}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +205,7 @@ class StepNumber extends StatelessWidget {
         style: TextStyle(
           fontSize: 64,
           fontWeight: FontWeight.bold,
-          color: Colors.white.withOpacity(0.5),
+          color: Colors.white.withValues(alpha: 0.5),
         ),
       ),
     );
@@ -208,55 +215,50 @@ class StepNumber extends StatelessWidget {
 class StepQuestion extends StatelessWidget {
   final String question;
 
-  const StepQuestion({Key key, @required this.question}) : super(key: key);
+  const StepQuestion({Key? key, required this.question}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 64, right: 16),
-      child: Text(
-        question,
-        style: TextStyle(fontSize: 24),
-      ),
+      child: Text(question, style: TextStyle(fontSize: 24)),
     );
   }
 }
 
-class OptionItem extends StatefulWidget {
+class OptionItem extends StatelessWidget {
   final String name;
   final void Function(Offset dotOffset) onTap;
   final bool showDot;
 
-  const OptionItem(
-      {Key key, @required this.name, @required this.onTap, this.showDot = true})
-      : super(key: key);
+  const OptionItem({
+    Key? key,
+    required this.name,
+    required this.onTap,
+    this.showDot = true,
+  }) : super(key: key);
 
-  @override
-  _OptionItemState createState() => _OptionItemState();
-}
-
-class _OptionItemState extends State<OptionItem> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        RenderBox object = context.findRenderObject();
+        final RenderBox object = context.findRenderObject() as RenderBox;
         Offset globalPosition = object.localToGlobal(Offset.zero);
-        widget.onTap(globalPosition);
+        onTap(globalPosition);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(
           children: <Widget>[
             SizedBox(width: 26),
-            Dot(visible: widget.showDot),
+            Dot(visible: showDot),
             SizedBox(width: 26),
             Expanded(
               child: Text(
-                widget.name,
+                name,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -267,7 +269,7 @@ class _OptionItemState extends State<OptionItem> {
 class ItemFader extends StatefulWidget {
   final Widget child;
 
-  const ItemFader({Key key, @required this.child}) : super(key: key);
+  const ItemFader({Key? key, required this.child}) : super(key: key);
 
   @override
   _ItemFaderState createState() => _ItemFaderState();
@@ -275,10 +277,10 @@ class ItemFader extends StatefulWidget {
 
 class _ItemFaderState extends State<ItemFader>
     with SingleTickerProviderStateMixin {
-  //1 means its below, -1 means its above
+  /// 1 means its below, -1 means its above
   int position = 1;
-  AnimationController _animationController;
-  Animation _animation;
+  late final AnimationController _animationController;
+  late final Animation<double> _animation;
 
   void show() {
     setState(() => position = 1);
@@ -316,10 +318,7 @@ class _ItemFaderState extends State<ItemFader>
       builder: (context, child) {
         return Transform.translate(
           offset: Offset(0, 64 * position * (1 - _animation.value)),
-          child: Opacity(
-            opacity: _animation.value,
-            child: child,
-          ),
+          child: Opacity(opacity: _animation.value, child: child),
         );
       },
       child: widget.child,
@@ -330,7 +329,7 @@ class _ItemFaderState extends State<ItemFader>
 class Dot extends StatelessWidget {
   final bool visible;
 
-  const Dot({Key key, this.visible = true}) : super(key: key);
+  const Dot({Key? key, this.visible = true}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -354,10 +353,7 @@ class ArrowIcons extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          IconButton(
-            icon: Icon(Icons.arrow_upward),
-            onPressed: () {},
-          ),
+          IconButton(icon: Icon(Icons.arrow_upward), onPressed: () {}),
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
@@ -383,10 +379,7 @@ class Plane extends StatelessWidget {
       top: 32,
       child: RotatedBox(
         quarterTurns: 2,
-        child: Icon(
-          Icons.airplanemode_active,
-          size: 64,
-        ),
+        child: Icon(Icons.airplanemode_active, size: 64),
       ),
     );
   }
@@ -394,10 +387,7 @@ class Plane extends StatelessWidget {
 
 const backgroundDecoration = BoxDecoration(
   gradient: LinearGradient(
-    colors: [
-      Color.fromRGBO(76, 61, 243, 1),
-      Color.fromRGBO(120, 58, 183, 1),
-    ],
+    colors: [Color.fromRGBO(76, 61, 243, 1), Color.fromRGBO(120, 58, 183, 1)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   ),
