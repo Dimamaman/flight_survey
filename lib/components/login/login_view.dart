@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../auth/auth_coordinator.dart';
+import '../auth/domain/auth_bloc.dart';
 import 'data/login_repository_contract.dart';
 import 'domain/login_bloc.dart';
 import 'localization/login_localization_contract.dart';
@@ -30,9 +32,20 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<LoginBloc>(
-      create: _createBloc,
-      child: const LoginCoordinator(child: LoginWidget()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<LoginBloc>(
+          create: _createBloc,
+        ),
+        BlocProvider<AuthBloc>(
+          create: (_) => AuthBloc(),
+        ),
+      ],
+      child: const AuthCoordinator(
+        child: LoginCoordinator(
+          child: LoginWidget(),
+        ),
+      ),
     );
   }
 }
