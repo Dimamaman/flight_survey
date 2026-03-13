@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,16 +10,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Widget> emojis = [
-    Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GetEmoji(emg: "😎", key: UniqueKey()),
-    ),
-    Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GetEmoji(emg: "🤠", key: UniqueKey()),
-    ),
-  ];
+  List<Widget> emojis = [GetEmoji(emg: "😎"), GetEmoji(emg: "🤠")];
 
   swapEmoji() {
     setState(() {
@@ -38,7 +27,7 @@ class _HomePageState extends State<HomePage> {
         if (element.widget is GetEmoji && element is StatefulElement) {
           final state = element.state;
           if (state is _GetEmojiState) {
-            log("RRRRRRRRRRRRR ${element.toStringDeep()}");
+            // log("RRRRRRRRRRRRR ${element.toStringDeep()}");
           }
         }
         element.visitChildElements(visit);
@@ -92,4 +81,15 @@ class _GetEmojiState extends State<GetEmoji> {
   Widget build(BuildContext context) {
     return Text(emoji, style: TextStyle(fontSize: 100));
   }
+
+  // @override
+  // void didUpdateWidget(covariant GetEmoji oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   if (oldWidget.emg != widget.emg) {
+  //     log("JJJJJJJJ ${oldWidget.emg} ~~ ${widget.emg}");
+  //     setState(() {
+  //       emoji = widget.emg; // Yangi emojini qabul qilamiz
+  //     });
+  //   }
+  // }
 }
