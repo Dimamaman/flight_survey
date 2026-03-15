@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../data/login_repository_contract.dart';
@@ -10,8 +11,11 @@ import 'login_event.dart';
 import 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc({required this.repository, required this.localization})
-    : super(const LoginState()) {
+  LoginBloc({
+    required this.repository,
+    required this.localization,
+    this.context,
+  }) : super(const LoginState()) {
     on<LoginEmailChanged>(_onEmailChanged);
     on<LoginPasswordChanged>(_onPasswordChanged);
     on<LoginSubmitted>(_onSubmitted);
@@ -20,6 +24,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   final LoginRepositoryContract repository;
   final LoginLocalizationContract localization;
+  final BuildContext? context;
 
   final _actionsController = StreamController<LoginAction>.broadcast();
 
@@ -79,6 +84,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   }
 
   void _onClear(LoginEmailClear event, Emitter<LoginState> emit) {
+    // Context ishlatiladi — unit testda context null bo'lsa xato beradi
+    ScaffoldMessenger.of(context!).showSnackBar(
+      const SnackBar(content: Text('Email tozalandi')),
+    );
     emit(state.copyWith(email: ""));
   }
 }

@@ -27,6 +27,7 @@ class LoginView extends StatelessWidget {
     return LoginBloc(
       repository: _createRepository(context),
       localization: _createLocalization(context),
+      context: context,
     );
   }
 
