@@ -6,5 +6,5 @@ abstract class LoginLocalizationContract {
   String get loading;
   String get unknownError;
   String get invalidCredentials;
+  String get empty;
 }
-

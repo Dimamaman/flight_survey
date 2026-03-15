@@ -28,6 +28,13 @@ class _LoginWidgetState extends State<LoginWidget> {
           return LoginLayoutWidget.error(message: state.errorMessage!);
         }
 
+        if (state.email.length == 5) {
+          return LoginLayoutWidget.empty(
+            localization: _bloc.localization,
+            onTap: () => _bloc.add(LoginEmailClear()),
+          );
+        }
+
         return LoginLayoutWidget.content(
           localization: _bloc.localization,
           state: state,

@@ -23,5 +23,7 @@ class DefaultLoginLocalization implements LoginLocalizationContract {
 
   @override
   String get invalidCredentials => 'Invalid email or password';
-}
 
+  @override
+  String get empty => "Empty";
+}

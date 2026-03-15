@@ -45,10 +45,6 @@ class _LoginCoordinatorState extends State<LoginCoordinator> {
 
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (BuildContext context) {
-        return widget.child;
-      },
-    );
+    return widget.child;
   }
 }

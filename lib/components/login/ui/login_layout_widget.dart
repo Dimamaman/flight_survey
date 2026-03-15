@@ -6,20 +6,12 @@ import '../localization/login_localization_contract.dart';
 abstract class LoginLayoutWidget extends StatelessWidget {
   const LoginLayoutWidget._({super.key});
 
-  factory LoginLayoutWidget.loading({
-    Key? key,
-  }) {
+  factory LoginLayoutWidget.loading({Key? key}) {
     return _LoginLayoutLoading._(key: key);
   }
 
-  factory LoginLayoutWidget.error({
-    Key? key,
-    required String message,
-  }) {
-    return _LoginLayoutError._(
-      key: key,
-      message: message,
-    );
+  factory LoginLayoutWidget.error({Key? key, required String message}) {
+    return _LoginLayoutError._(key: key, message: message);
   }
 
   factory LoginLayoutWidget.content({
@@ -39,6 +31,14 @@ abstract class LoginLayoutWidget extends StatelessWidget {
       onSubmit: onSubmit,
     );
   }
+
+  factory LoginLayoutWidget.empty({
+    Key? key,
+    required LoginLocalizationContract localization,
+    required Function() onTap,
+  }) {
+    return _LoginLayoutEmpty._(localization: localization, onTap: onTap);
+  }
 }
 
 class _LoginLayoutLoading extends LoginLayoutWidget {
@@ -46,17 +46,12 @@ class _LoginLayoutLoading extends LoginLayoutWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
+    return const Center(child: CircularProgressIndicator());
   }
 }
 
 class _LoginLayoutError extends LoginLayoutWidget {
-  const _LoginLayoutError._({
-    super.key,
-    required this.message,
-  }) : super._();
+  const _LoginLayoutError._({super.key, required this.message}) : super._();
 
   final String message;
 
@@ -106,9 +101,7 @@ class _LoginLayoutContent extends LoginLayoutWidget {
               ),
               const SizedBox(height: 24),
               TextField(
-                decoration: InputDecoration(
-                  labelText: localization.emailHint,
-                ),
+                decoration: InputDecoration(labelText: localization.emailHint),
                 keyboardType: TextInputType.emailAddress,
                 onChanged: onEmailChanged,
               ),
@@ -143,3 +136,20 @@ class _LoginLayoutContent extends LoginLayoutWidget {
   }
 }
 
+class _LoginLayoutEmpty extends LoginLayoutWidget {
+  const _LoginLayoutEmpty._({
+    super.key,
+    required this.localization,
+    required this.onTap,
+  }) : super._();
+
+  final LoginLocalizationContract localization;
+  final Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: TextButton(onPressed: onTap, child: Text(localization.empty)),
+    );
+  }
+}
