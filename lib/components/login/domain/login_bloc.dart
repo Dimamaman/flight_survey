@@ -85,9 +85,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   void _onClear(LoginEmailClear event, Emitter<LoginState> emit) {
     // Context ishlatiladi — unit testda context null bo'lsa xato beradi
-    ScaffoldMessenger.of(context!).showSnackBar(
-      const SnackBar(content: Text('Email tozalandi')),
-    );
+    ScaffoldMessenger.of(
+      context!,
+    ).showSnackBar(const SnackBar(content: Text('Email tozalandi')));
     emit(state.copyWith(email: ""));
   }
 }
